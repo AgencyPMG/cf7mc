@@ -56,8 +56,7 @@ class PMG_CF7MC
         add_action('admin_init', array($this, 'settings'));
         add_action('admin_menu', array($this, 'page'));
 
-        if(defined('WPCF7_VERSION'))
-        {
+        if (defined('WPCF7_VERSION')) {
             add_action('init', array($this, 'cf7_init'));
         }
     }
@@ -157,19 +156,22 @@ class PMG_CF7MC
 
     public function cf7_handler($tag)
     {
-        if(!is_array($tag) || !self::opt('api_key'))
+        if (!is_array($tag) || !self::opt('api_key')) {
             return '';
+        }
 
         $name = isset($tag['name']) ? $tag['name'] : false;
         $options = isset($tag['options']) ? (array)$tag['options'] : array();
 
         // name not set in the tag, try fetchint it from options.
-        if(!$name && (!$name = $this->get_name($options)))
+        if (!$name && (!$name = $this->get_name($options))) {
             return '';
+        }
 
         $class = wpcf7_form_controls_class('checkbox');
         $id = '';
         $list_id = self::opt('list_id');
+        $checked = false;
 
         foreach($options as $option)
         {
@@ -184,6 +186,8 @@ class PMG_CF7MC
             elseif(preg_match('%^list_id:([-0-9a-zA-Z_]+)$%', $option, $matches))
             {
                 $list_id = $matches[1];
+            } elseif ('checked' === $option) {
+                $checked = true;
             }
         }
 
@@ -196,19 +200,18 @@ class PMG_CF7MC
         if($id)
             $atts[] = 'id="' . esc_attr($id) . '"';
 
-        $checked = '';
-        if(wpcf7_is_posted() && !empty($_POST[$name]))
-        {
-            $checked = 'checked="checked"';
+        if (wpcf7_is_posted() && !empty($_POST[$name])) {
+            $checked = true;
         }
 
         $validation_error = wpcf7_get_validation_error($name);
 
         $html = sprintf(
-            '<span %1$s><input type="checkbox" name="%2$s" id="%3$s" value="mc_on" /></span>',
+            '<span %1$s><input type="checkbox" name="%2$s" id="%3$s" value="mc_on" %4$s /></span>',
             implode(' ', $atts),
             esc_attr($name),
-            $id ? esc_attr($id) : esc_attr($name)
+            $id ? esc_attr($id) : esc_attr($name),
+            $checked ? 'checked="checked"' : ''
         );
 
         $html = '<span class="wpcf7-form-control-wrap ' . esc_attr($name) . '">' .
@@ -220,7 +223,7 @@ class PMG_CF7MC
     public function cf7_admin_init()
     {
         wpcf7_add_tag_generator(
-            'mail_chimp',
+            'mailchimp',
             __('MailChimp', 'pmg-cf7mc'),
             'wpcf7-tg-pane-mc',
             array($this, 'tag_generator')
@@ -263,6 +266,11 @@ class PMG_CF7MC
                         <td><code>list_id</code> (<?php esc_html_e('optional', 'pmg-cf7mc'); ?>)<br />
                         <?php esc_html_e('What list to subscribe to.', 'pmg-cf7mc'); ?><br />
                         <input type="text" name="list_id" class="list_idvalue oneline option" /></td>
+                    </tr>
+                    <tr>
+                        <td><code>checked</code> (<?php esc_html_e('optional', 'pmg-cf7mc'); ?>)<br />
+                        <?php esc_html_e('Whether the box should be check by default.', 'pmg-cf7mc'); ?><br />
+                        <input type="checkbox" name="checked" class="option" /></td>
                     </tr>
                 </table>
 
