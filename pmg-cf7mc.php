@@ -173,8 +173,7 @@ class PMG_CF7MC
         $list_id = self::opt('list_id');
         $checked = false;
 
-        foreach($options as $option)
-        {
+        foreach ($options as $option) {
             if(preg_match('%^id:([-0-9a-zA-Z_]+)$%', $option, $matches))
             {
                 $id = $matches[1];
@@ -192,13 +191,15 @@ class PMG_CF7MC
         }
 
         // no list id bail
-        if(!$list_id)
+        if (!$list_id) {
             return '';
+        }
 
         $atts = array();
         $atts[] = 'class="' . esc_attr($class) . '"';
-        if($id)
+        if ($id) {
             $atts[] = 'id="' . esc_attr($id) . '"';
+        }
 
         if (wpcf7_is_posted() && !empty($_POST[$name])) {
             $checked = true;
@@ -288,32 +289,33 @@ class PMG_CF7MC
         $key = self::opt('api_key');
         $_list_id = self::opt('list_id');
 
-        if(!$key)
+        if (!$key) {
             return;
+        }
 
         $data = $form->posted_data;
         $mc_tags = wp_list_filter($form->scanned_form_tags, array('type' => 'mailchimp'));
 
-        if(!$mc_tags)
+        if (!$mc_tags) {
             return; // no mail chimp tags here
+        }
 
         require_once(dirname(__FILE__) . '/lib/MCAPI.class.php');
         $mc = new MCAPI($key);
 
-        foreach($mc_tags as $mc_tag)
-        {
+        foreach ($mc_tags as $mc_tag) {
             $options = isset($mc_tag['options']) ? $mc_tag['options'] : array();
             $name = !empty($mc_tag['name']) ? $mc_tag['name'] : $this->get_name($options);
 
-            if(!$name || empty($data[$name]))
+            if (!$name || empty($data[$name])) {
                 continue; // didn't get a name or the box wasn't checked
+            }
 
             $ek = 'your-email';
             $list_id = false;
             $merge_vars = array();
 
-            foreach($options as $option)
-            {
+            foreach ($options as $option) {
                 if(preg_match('%^list_id:([-0-9a-zA-Z_]+)$%', $option, $matches))
                 {
                     $list_id = $matches[1];
@@ -331,13 +333,15 @@ class PMG_CF7MC
 
             $email = isset($data[$ek]) ? is_email($data[$ek]) : false;
 
-            if(!$email)
+            if (!$email) {
                 continue;
+            }
 
-            if(!$list_id && !$_list_id)
+            if (!$list_id && !$_list_id) {
                 continue;
-            elseif(!$list_id)
+            } elseif (!$list_id) {
                 $list_id = $_list_id;
+            }
 
             $r = $mc->listSubscribe($list_id, $email, $merge_vars);
         }
