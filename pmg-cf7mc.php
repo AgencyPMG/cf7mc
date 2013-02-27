@@ -276,7 +276,7 @@ class PMG_CF7MC
 
                 <div class="tg-tag">
                     <?php esc_html_e("Copy this code and paste it into the form left.", 'pmg-cf7mc'); ?><br />
-                    <input type="text" name="mail_chimp" class="tag" readonly="readonly" onfocus="this.select()" />
+                    <input type="text" name="mailchimp" class="tag" readonly="readonly" onfocus="this.select()" />
                 </div>
             </form>
         </div>
